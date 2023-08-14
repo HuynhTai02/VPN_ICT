@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray_bg">
+
+    <TableRow
+        android:id="@+id/tbr"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/ibt_back_coin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/gray_bg"
+            android:src="@drawable/arrow_back"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:fontFamily="@font/roboto_bold"
+            android:gravity="center"
+            android:text="Disconnect Report"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            tools:ignore="HardcodedText" />
+
+        <View
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
+    </TableRow>
+
+    <ImageButton
+        android:id="@+id/ibt_close"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/close"
+        ads:layout_constraintEnd_toEndOf="@id/tbr"
+        ads:layout_constraintStart_toStartOf="@id/tbr"
+        ads:layout_constraintTop_toBottomOf="@id/tbr"
+        tools:ignore="ContentDescription" />
+
+    <ImageButton
+        android:id="@+id/ibt_duration"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/duration"
+        ads:layout_constraintEnd_toStartOf="@id/ibt_close"
+        ads:layout_constraintTop_toBottomOf="@id/ibt_close"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/tv_txt_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:text="Duration"
+        android:textColor="@color/teal_200"
+        android:textSize="10sp"
+        ads:layout_constraintStart_toEndOf="@id/ibt_duration"
+        ads:layout_constraintTop_toTopOf="@id/ibt_duration"
+        tools:ignore="HardcodedText,SmallSp" />
+
+    <TextView
+        android:id="@+id/tv_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:text="00h 00m 00s"
+        android:textColor="@color/teal_200"
+        android:textSize="15sp"
+        ads:layout_constraintStart_toEndOf="@id/ibt_duration"
+        ads:layout_constraintTop_toBottomOf="@id/tv_txt_duration"
+        tools:ignore="HardcodedText,SmallSp" />
+
+    <ImageView
+        android:id="@+id/iv_download"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="50dp"
+        android:src="@drawable/download"
+        ads:layout_constraintStart_toStartOf="parent"
+        ads:layout_constraintTop_toBottomOf="@id/ibt_duration"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/tv_download"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:text="Download"
+        android:textColor="#E86643"
+        android:textSize="10sp"
+        ads:layout_constraintStart_toEndOf="@id/iv_download"
+        ads:layout_constraintTop_toTopOf="@id/iv_download"
+        tools:ignore="HardcodedText,SmallSp" />
+
+    <TextView
+        android:id="@+id/tv_count_kb_download"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="32 KB"
+        android:textColor="#E86643"
+        android:textSize="15sp"
+        ads:layout_constraintEnd_toEndOf="@id/tv_download"
+        ads:layout_constraintStart_toStartOf="@id/tv_download"
+        ads:layout_constraintTop_toBottomOf="@id/tv_download"
+        tools:ignore="HardcodedText" />
+
+    <ImageView
+        android:id="@+id/iv_upload"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        android:layout_marginStart="30dp"
+        android:src="@drawable/upload"
+        ads:layout_constraintBottom_toBottomOf="@id/iv_download"
+        ads:layout_constraintStart_toEndOf="@id/tv_count_kb_download"
+        ads:layout_constraintTop_toTopOf="@id/iv_download"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/tv_count_kb_upload"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:text="35 KB"
+        android:textColor="#55FC08"
+        android:textSize="15sp"
+        ads:layout_constraintStart_toEndOf="@id/iv_upload"
+        ads:layout_constraintTop_toTopOf="@id/iv_upload"
+        tools:ignore="HardcodedText,SmallSp" />
+
+    <TextView
+        android:id="@+id/tv_upload"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Upload"
+        android:textColor="#55FC08"
+        android:textSize="10sp"
+        ads:layout_constraintEnd_toEndOf="@id/tv_count_kb_upload"
+        ads:layout_constraintStart_toStartOf="@id/tv_count_kb_upload"
+        ads:layout_constraintTop_toBottomOf="@id/tv_count_kb_upload"
+        tools:ignore="HardcodedText,SmallSp" />
+
+    <ImageView
+        android:layout_marginBottom="50dp"
+        android:src="@drawable/usa"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        ads:layout_constraintBottom_toBottomOf="parent"
+        ads:layout_constraintEnd_toEndOf="parent"
+        ads:layout_constraintStart_toStartOf="parent"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/iv_bg_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_item"
+        ads:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="ContentDescription" />
+</androidx.constraintlayout.widget.ConstraintLayout>

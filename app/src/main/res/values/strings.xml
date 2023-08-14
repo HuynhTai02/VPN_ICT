@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">VPN Master</string>
+    <string name="txt_privacy_policy">By proceeding you agree with Privacy Policy</string>
+    <string name="txt_intro_ads">Reward coins are used to select the server.\n\tYou will be deducted 100 coins after a connected.\t</string>
+    <string name="txt_to_watch">Do you want to watch the video to get more coin?</string>
+    <string name="txt_coin">Coin</string>
+    <string name="txt_current_coins">Current Coins</string>
+    <string name="txt_daily_coin">Daily Coin</string>
+    <string name="txt_how_to_get_coin">Coin are used to choose the best sever.</string>
+    <string name="txt_daily_check_in">Daily Check-in</string>
+    <string name="txt_invite_friend">Invite Friend</string>
+    <string name="txt_watch_get_coin">Watch video to get coin</string>
+    <string name="txt_tap_get_coin">Tap to get coin</string>
+    <string name="txt_get_80">+80</string>
+    <string name="txt_apps_use_vpn">Apps Use VPN</string>
+    <string name="txt_sever_list">Sever List</string>
+    <string name="txt_more_coin">More Coin</string>
+    <string name="txt_share">Tell Your Friends</string>
+    <string name="txt_help_us_improve">Help Us Improve</string>
+    <string name="txt_rate_us">Rate Us</string>
+    <string name="txt_app_policy">App Policy</string>
+    <string name="txt_vpn_info">VPN Info</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="txt_banner_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="txt_count_days">0 Days</string>
+    <string name="txt_rating">Hi, app developers have worked very hard to bring you the best free apps. Your 5 star rating is worth more than anything. Please write a good review on CH Play store to encourage developers.</string>
+</resources>

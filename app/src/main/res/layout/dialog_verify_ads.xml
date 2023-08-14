@@ -1,0 +1,67 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    app:cardCornerRadius="25dp"
+    app:cardElevation="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="12dp"
+            android:src="@drawable/icon_verify_ads"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="15dp"
+            android:fontFamily="@font/roboto_medium"
+            android:gravity="center"
+            android:lineSpacingExtra="1dp"
+            android:text="@string/txt_intro_ads"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:fontFamily="@font/roboto_bold"
+            android:text="@string/txt_to_watch"
+            android:textColor="@color/black"
+            android:textSize="14sp" />
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="20dp">
+
+            <ImageButton
+                android:id="@+id/ibt_cancel_ads"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="24dp"
+                android:background="@drawable/cancel"
+                tools:ignore="ContentDescription" />
+
+            <ImageButton
+                android:id="@+id/ibt_watch_ads"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:background="@drawable/watch"
+                tools:ignore="ContentDescription" />
+
+        </TableRow>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

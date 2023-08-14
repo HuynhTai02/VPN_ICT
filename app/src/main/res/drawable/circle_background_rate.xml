@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#C9CFCF" /> <!-- Màu nền của hình tròn -->
+    <corners android:radius="50dp" /> <!-- Bán kính của hình tròn, có thể điều chỉnh để tạo hình tròn hoàn chỉnh -->
+</shape>

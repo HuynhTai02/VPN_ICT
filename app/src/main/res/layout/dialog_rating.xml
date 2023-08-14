@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_margin="10dp"
+    android:background="@drawable/circle_background_rate3"
+    android:orientation="vertical">
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/circle_background_rate4"
+        android:weightSum="2">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.75"
+            android:fontFamily="sans-serif-light"
+            android:gravity="center"
+            android:text="5 Star Rating"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lt_rating"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1.25"
+            app:lottie_autoPlay="true"
+            app:lottie_fileName="json/animation_rating.json"
+            app:lottie_loop="true" />
+    </TableRow>
+
+    <ImageView
+        android:id="@+id/rating_img"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_rate1_icon"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/rating_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="5dp"
+        android:fontFamily="@font/bun_regular"
+        android:text="Oh No"
+        android:textColor="@color/light_blue_A200"
+        tools:ignore="HardcodedText" />
+
+    <RatingBar
+        android:id="@+id/ratingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="5dp"
+        android:numStars="5"
+        android:progressTint="#FFEB3B" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="12dp"
+        android:fontFamily="sans-serif-light"
+        android:lineSpacingExtra="5sp"
+        android:text="@string/txt_rating"
+        android:textColor="@color/black"
+        android:textSize="16sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_margin="10dp"
+        android:background="#E3E0E0" />
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="1">
+
+        <Button
+            android:id="@+id/btNo"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/circle_background_rate"
+            android:fontFamily="sans-serif-light"
+            android:gravity="center"
+            android:text="Cancel"
+            android:textAllCaps="false"
+            android:textColor="@color/gray_bg"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btYes"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/circle_background_rate2"
+            android:fontFamily="sans-serif-light"
+            android:gravity="center"
+            android:text="Submit"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+    </TableRow>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp" />
+</LinearLayout>

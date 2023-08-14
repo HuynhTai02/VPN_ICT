@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_app_vpn"
+            android:icon="@drawable/app_use_vpn"
+            android:title="@string/txt_apps_use_vpn" />
+
+        <item
+            android:id="@+id/nav_list_sever"
+            android:icon="@drawable/server_list"
+            android:title="@string/txt_sever_list" />
+
+        <item
+            android:id="@+id/nav_more_coin"
+            android:icon="@drawable/more_coin"
+            android:title="@string/txt_more_coin" />
+
+        <item
+            android:id="@+id/nav_tell_friends"
+            android:icon="@drawable/share"
+            android:title="@string/txt_share" />
+
+        <item
+            android:id="@+id/nav_help_us"
+            android:icon="@drawable/contact"
+            android:title="@string/txt_help_us_improve" />
+
+        <item
+            android:id="@+id/nav_rate"
+            android:icon="@drawable/rate"
+            android:title="@string/txt_rate_us" />
+
+        <item
+            android:id="@+id/nav_policy"
+            android:icon="@drawable/policy"
+            android:title="@string/txt_app_policy" />
+    </group>
+</menu>
