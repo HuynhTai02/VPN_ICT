@@ -4,6 +4,8 @@ import android.app.Application
 import com.google.android.gms.ads.MobileAds
 import com.wireguard.android.backend.Backend
 import com.wireguard.android.backend.GoBackend
+import com.wireguard.android.backend.Tunnel
+import com.wireguard.config.Config
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +18,17 @@ class App : Application() {
     private var backend: Backend? = null
     private val futureBackend = CompletableDeferred<Backend>()
     private val coroutineScope = CoroutineScope(Job() + Dispatchers.Main.immediate)
+
+    private var myTunnel: Tunnel? = null
+    private val myConfig: Config? = null
+
+    fun getMyTunnel(): Tunnel? {
+        return myTunnel
+    }
+
+    fun getMyConfig(): Config? {
+        return myConfig
+    }
 
     init {
         weakSelf = WeakReference(this)
@@ -31,15 +44,12 @@ class App : Application() {
                 e.printStackTrace()
             }
         }
-        instance = this
 
         //initialize Ads SDK
         MobileAds.initialize(this) {}
     }
 
     companion object {
-        lateinit var instance: App
-
         private lateinit var weakSelf: WeakReference<App>
 
         fun get(): App {
@@ -47,7 +57,5 @@ class App : Application() {
         }
 
         suspend fun getBackend() = get().futureBackend.await()
-
-        fun getCoroutineScope() = get().coroutineScope
     }
 }

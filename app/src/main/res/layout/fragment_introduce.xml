@@ -35,10 +35,11 @@
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="ContentDescription" />
 
-    <TableRow
+    <LinearLayout
         android:id="@+id/dots"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:paddingBottom="20dp"
         app:layout_constraintBottom_toTopOf="@id/ibt_accept"
         app:layout_constraintEnd_toEndOf="parent"

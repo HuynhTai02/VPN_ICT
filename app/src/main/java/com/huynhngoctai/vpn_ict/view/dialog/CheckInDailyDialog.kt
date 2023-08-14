@@ -2,10 +2,11 @@ package com.huynhngoctai.vpn_ict.view.dialog
 
 import android.content.Context
 import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.TextView
 import android.widget.Toast
-import com.huynhngoctai.vpn_ict.CommonUtils
-import com.huynhngoctai.vpn_ict.view.OnDialogListenerCoin
+import com.huynhngoctai.vpn_ict.util.CommonUtils
+import com.huynhngoctai.vpn_ict.view.OnDialogListenerCheckIn
 import com.huynhngoctai.vpn_ict.R
 import com.huynhngoctai.vpn_ict.databinding.DialogCheckinDailyBinding
 import kotlinx.coroutines.CoroutineScope
@@ -23,9 +24,10 @@ class CheckInDailyDialog(context: Context) : BaseDialog<DialogCheckinDailyBindin
         const val DAILY_COIN = "DAILY_COIN"
     }
 
-    private var callBack: OnDialogListenerCoin? = null
+    private var callBack: OnDialogListenerCheckIn? = null
+    private var isCheckingIn = false
 
-    fun setOnDialogListener(callBack: OnDialogListenerCoin) {
+    fun setOnDialogListener(callBack: OnDialogListenerCheckIn) {
         this.callBack = callBack
     }
 
@@ -53,13 +55,17 @@ class CheckInDailyDialog(context: Context) : BaseDialog<DialogCheckinDailyBindin
     }
 
     private fun addDayTextView() {
-        dayTextViews.add(binding.tvCheckDay1)
-        dayTextViews.add(binding.tvCheckDay2)
-        dayTextViews.add(binding.tvCheckDay3)
-        dayTextViews.add(binding.tvCheckDay4)
-        dayTextViews.add(binding.tvCheckDay5)
-        dayTextViews.add(binding.tvCheckDay6)
-        dayTextViews.add(binding.tvCheckDay7)
+        dayTextViews.addAll(
+            listOf(
+                binding.tvCheckDay1,
+                binding.tvCheckDay2,
+                binding.tvCheckDay3,
+                binding.tvCheckDay4,
+                binding.tvCheckDay5,
+                binding.tvCheckDay6,
+                binding.tvCheckDay7
+            )
+        )
     }
 
     override fun setUpDialog() {
@@ -71,9 +77,16 @@ class CheckInDailyDialog(context: Context) : BaseDialog<DialogCheckinDailyBindin
         binding.ibtCheckIn.setOnClickListener(this)
     }
 
-    override fun clickView(v: View) {
-        super.clickView(v)
-        if (v == binding.ibtCheckIn) {
+    override fun onClick(v: View) {
+        v.startAnimation(
+            AnimationUtils.loadAnimation(
+                context,
+                androidx.appcompat.R.anim.abc_popup_enter
+            )
+        )
+
+        if (v == binding.ibtCheckIn && !isCheckingIn) {
+            isCheckingIn = true
             handleCheckIn()
         }
     }
@@ -90,50 +103,53 @@ class CheckInDailyDialog(context: Context) : BaseDialog<DialogCheckinDailyBindin
                         "You have already checked in today!",
                         Toast.LENGTH_SHORT
                     ).show()
+                    isCheckingIn = false
                 }
             } else {
                 val currentDayIndex = CommonUtils.getPrefInt(CHECK_IN_DAY_INDEX)
-                val totalCoins = CommonUtils.getPrefInt(TOTAL_COIN)
 
                 if (currentDayIndex >= 7) {
-
-                    CommonUtils.clearPref(CHECK_IN_DAY_INDEX)
-                    CommonUtils.clearPref(DAILY_COIN)
-
-                    withContext(Dispatchers.Main) {
-                        for (dayTextView in dayTextViews) {
-                            dayTextView.setBackgroundResource(R.drawable.check_none_dailycheck)
-                        }
-                        binding.tvCountDay.text = "0"
-                    }
+                    resetCheckInState()
                 } else {
-                    val updatedDayIndex = currentDayIndex + 1
-
-                    CommonUtils.savePref(CHECK_IN_DAY_INDEX, updatedDayIndex)
-                    val coinValue = coinValues[currentDayIndex]
-                    val coinEarned = CommonUtils.getPrefInt(DAILY_COIN) + coinValue
-                    CommonUtils.savePref(DAILY_COIN, coinEarned)
-
-                    withContext(Dispatchers.Main) {
-                        val dayTextView = dayTextViews[currentDayIndex]
-                        dayTextView.setBackgroundResource(R.drawable.checked)
-                        binding.tvCountDay.text = "$updatedDayIndex"
-
-                        val newTotalCoins = totalCoins + coinValue
-                        CommonUtils.savePref(TOTAL_COIN, newTotalCoins)
-
-                        Toast.makeText(
-                            context,
-                            "Congratulations you have received $coinEarned coins!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-
-                        callBack?.updateCoinCheckIn()
-                    }
+                    updateCheckInState(currentDayIndex)
                 }
 
                 CommonUtils.savePref(LAST_CHECK_IN_DATE, currentDate)
+                isCheckingIn = false
             }
+        }
+    }
+
+    private suspend fun resetCheckInState() {
+        CommonUtils.clearPref(CHECK_IN_DAY_INDEX)
+        CommonUtils.clearPref(DAILY_COIN)
+
+        withContext(Dispatchers.Main) {
+            dayTextViews.forEach { it.setBackgroundResource(R.drawable.check_none_dailycheck) }
+            binding.tvCountDay.text = "0"
+        }
+    }
+
+    private suspend fun updateCheckInState(currentDayIndex: Int) {
+        val updatedDayIndex = currentDayIndex + 1
+        CommonUtils.savePref(CHECK_IN_DAY_INDEX, updatedDayIndex)
+
+        val coinDaily = coinValues[currentDayIndex]
+        val coinTotal = CommonUtils.getPrefInt(TOTAL_COIN) + coinDaily
+        CommonUtils.savePref(DAILY_COIN, coinDaily)
+        CommonUtils.savePref(TOTAL_COIN, coinTotal)
+
+        withContext(Dispatchers.Main) {
+            val dayTextView = dayTextViews[currentDayIndex]
+            dayTextView.setBackgroundResource(R.drawable.checked)
+            binding.tvCountDay.text = "$updatedDayIndex"
+            Toast.makeText(
+                context,
+                "Congratulations you have received $coinDaily coins!",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            callBack?.updateCoinCheckIn()
         }
     }
 }

@@ -43,17 +43,15 @@ abstract class BaseFragment<V : ViewBinding> : Fragment(), View.OnClickListener 
     abstract fun initViews()
 
     override fun onClick(v: View) {
+        //do nothing
+    }
+
+    protected open fun animationView(v: View) {
         v.startAnimation(
             AnimationUtils.loadAnimation(
                 context, androidx.appcompat.R.anim.abc_fade_in
             )
         )
-        clickView(v)
-    }
-
-    //abstract
-    protected open fun clickView(v: View) {
-        //do nothing
     }
 
     protected open fun notify(msg: String?) {
@@ -73,7 +71,7 @@ abstract class BaseFragment<V : ViewBinding> : Fragment(), View.OnClickListener 
         alertDialog.show()
     }
 
-    protected fun loadVideoAds(msg: String) {
+    protected fun loadVideoAds() {
         val adRequest = AdRequest.Builder().build()
         RewardedAd.load(
             requireActivity(),
@@ -95,7 +93,7 @@ abstract class BaseFragment<V : ViewBinding> : Fragment(), View.OnClickListener 
                     rewardedAd?.let {
                         ad.show(requireActivity()) {
                             // Handle the reward.
-                            notify(msg)
+                            notify("User earned the reward 150 coin.")
                         }
                     } ?: run {
                         notify("The rewarded ad wasn't ready yet.")
