@@ -1,8 +1,6 @@
 package com.huynhngoctai.vpn_ict.view.frgment
 
 import android.animation.Animator
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.huynhngoctai.vpn_ict.view.OnAnimatorListener

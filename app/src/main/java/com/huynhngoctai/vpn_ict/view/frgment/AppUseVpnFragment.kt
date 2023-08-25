@@ -11,6 +11,7 @@ import com.huynhngoctai.vpn_ict.adapter.AppInfoAdapter
 import com.huynhngoctai.vpn_ict.databinding.FragmentAppUseVpnBinding
 import com.huynhngoctai.vpn_ict.model.AppInfo
 
+@Suppress("DEPRECATION")
 class AppUseVpnFragment : BaseFragment<FragmentAppUseVpnBinding>() {
     companion object {
         val TAG: String = AppUseVpnFragment::class.qualifiedName!!
