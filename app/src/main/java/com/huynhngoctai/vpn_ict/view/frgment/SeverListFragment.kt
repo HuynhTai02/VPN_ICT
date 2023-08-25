@@ -194,6 +194,7 @@ class SeverListFragment : BaseFragment<FragmentSeverListBinding>() {
         val adapter =
             CountriesAdapter(sampleData(), object : CountriesAdapter.OnServerItemClickListener {
                 override fun onServerItemClicked(server: Servers) {
+
                     goBackMain(server)
                 }
             }

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">VPN Master</string>
     <string name="txt_privacy_policy">By proceeding you agree with Privacy Policy</string>
-    <string name="txt_intro_ads">Reward coins are used to select the server.\n\tYou will be deducted 100 coins after a connected.\t</string>
+    <string name="txt_intro_ads">Reward coins are used to select the server.\n\tYou will be deducted 150 coins after a connected.\t</string>
     <string name="txt_to_watch">Do you want to watch the video to get more coin?</string>
     <string name="txt_coin">Coin</string>
     <string name="txt_current_coins">Current Coins</string>
@@ -26,4 +26,12 @@
     <string name="txt_banner_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="txt_count_days">0 Days</string>
     <string name="txt_rating">Hi, app developers have worked very hard to bring you the best free apps. Your 5 star rating is worth more than anything. Please write a good review on CH Play store to encourage developers.</string>
+    <string name="transfer_bytes">%d B</string>
+    <string name="transfer_gibibytes">%.2f GiB</string>
+    <string name="transfer_kibibytes">%.2f KiB</string>
+    <string name="transfer_mibibytes">%.2f MiB</string>
+    <string name="transfer_rx">%1$s</string>
+    <string name="transfer_tx">%1$s</string>
+    <string name="transfer_tibibytes">%.2f TiB</string>
+    <string name="latest_handshake_ago">%s ago</string>
 </resources>

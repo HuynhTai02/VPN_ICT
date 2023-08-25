@@ -3,9 +3,9 @@ package com.huynhngoctai.vpn_ict.view.dialog
 import android.content.Context
 import android.util.Log
 import android.view.View
-import com.huynhngoctai.vpn_ict.CommonUtils
+import com.huynhngoctai.vpn_ict.util.CommonUtils
 import com.huynhngoctai.vpn_ict.databinding.DialogVerifyAdsBinding
-import com.huynhngoctai.vpn_ict.view.OnDialogListenerMain
+import com.huynhngoctai.vpn_ict.view.OnDialogListenerVerifyAds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,9 +22,9 @@ class VerifyAdsDialog(context: Context) : BaseDialog<DialogVerifyAdsBinding>(con
         const val MAX_WATCH_COUNT_DIALOG_ADS: Int = 2
     }
 
-    private var callBack: OnDialogListenerMain? = null
+    private var callBack: OnDialogListenerVerifyAds? = null
 
-    fun setOnDialogListener(callBack: OnDialogListenerMain) {
+    fun setOnDialogListener(callBack: OnDialogListenerVerifyAds) {
         this.callBack = callBack
     }
 
@@ -64,8 +64,8 @@ class VerifyAdsDialog(context: Context) : BaseDialog<DialogVerifyAdsBinding>(con
     }
 
     private fun resetDailyCounts(currentDate: String) {
-        CommonUtils.clearPref(COUNTING_WATCH_DIALOG_ADS)
         CommonUtils.clearPref(DAILY_COIN_DIALOG_ADS)
+        CommonUtils.clearPref(COUNTING_WATCH_DIALOG_ADS)
         CommonUtils.savePref(LAST_WATCH_DATE_DIALOG_ADS, currentDate)
     }
 
@@ -77,8 +77,8 @@ class VerifyAdsDialog(context: Context) : BaseDialog<DialogVerifyAdsBinding>(con
     }
 
     private fun sumCoinReward() {
-        val totalCoinDialogAds = CommonUtils.getPrefInt(TOTAL_COIN_DIALOG_ADS) + 100
-        val dailyCoinDialogAds = CommonUtils.getPrefInt(DAILY_COIN_DIALOG_ADS) + 100
+        val totalCoinDialogAds = CommonUtils.getPrefInt(TOTAL_COIN_DIALOG_ADS) + 150
+        val dailyCoinDialogAds = CommonUtils.getPrefInt(DAILY_COIN_DIALOG_ADS) + 150
 
         CommonUtils.savePref(TOTAL_COIN_DIALOG_ADS, totalCoinDialogAds)
         CommonUtils.savePref(DAILY_COIN_DIALOG_ADS, dailyCoinDialogAds)

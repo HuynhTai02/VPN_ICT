@@ -32,8 +32,7 @@ class ServersAdapter(
         val currentServer = servers[position]
         holder.cityNameTextView.text = currentServer.nameCity
         holder.itemView.setOnClickListener {
-            clickListener.onServerItemClicked(currentServer)
-        }
+            clickListener.onServerItemClicked(currentServer) }
     }
 
     override fun getItemCount() = servers.size

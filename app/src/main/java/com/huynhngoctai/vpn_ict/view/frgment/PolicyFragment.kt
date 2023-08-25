@@ -21,8 +21,6 @@ class PolicyFragment : BaseFragment<FragmentPolicyBinding>() {
     }
 
     override fun initViews() {
-        showDiaNoInternet()
-
         // Configure WebView
         configWebView()
         addEvents()
@@ -33,8 +31,10 @@ class PolicyFragment : BaseFragment<FragmentPolicyBinding>() {
         binding.btHome.setOnClickListener(this)
     }
 
-    override fun clickView(v: View) {
-        super.clickView(v)
+    override fun onClick(v: View) {
+        super.onClick(v)
+        animationView(v)
+
         if (v == binding.btBack) {
             if (binding.webView.canGoBack()) {
                 binding.webView.goBack()

@@ -13,12 +13,14 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
-import com.huynhngoctai.vpn_ict.CommonUtils
+import com.huynhngoctai.vpn_ict.util.CommonUtils
 import com.huynhngoctai.vpn_ict.R
 import com.huynhngoctai.vpn_ict.adapter.IntroduceAdapter
 import com.huynhngoctai.vpn_ict.databinding.FragmentIntroduceBinding
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class IntroduceFragment : BaseFragment<FragmentIntroduceBinding>() {
     companion object {
@@ -44,14 +46,22 @@ class IntroduceFragment : BaseFragment<FragmentIntroduceBinding>() {
     }
 
     private fun setUpVPIntro() {
-        imgListIntro =
-            listOf(R.drawable.screen1, R.drawable.screen2, R.drawable.screen3, R.drawable.screen4)
+        lifecycleScope.launch(Dispatchers.IO) {
+            imgListIntro =
+                listOf(
+                    R.drawable.screen1,
+                    R.drawable.screen2,
+                    R.drawable.screen3,
+                    R.drawable.screen4
+                )
 
-        adapter = IntroduceAdapter(imgListIntro)
+            adapter = IntroduceAdapter(imgListIntro)
+            binding.vp2Introduce.adapter = adapter
 
-        binding.vp2Introduce.adapter = adapter
-
-        addDots(0)
+            lifecycleScope.launch(Dispatchers.Main) {
+                addDots(0)
+            }
+        }
     }
 
     private fun addEvents() {
@@ -80,8 +90,10 @@ class IntroduceFragment : BaseFragment<FragmentIntroduceBinding>() {
         }
     }
 
-    override fun clickView(v: View) {
-        super.clickView(v)
+    override fun onClick(v: View) {
+        super.onClick(v)
+        animationView(v)
+
         if (v == binding.ibtAccept) {
             goToMainFragment()
         } else {

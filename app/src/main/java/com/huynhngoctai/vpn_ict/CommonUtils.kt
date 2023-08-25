@@ -16,43 +16,43 @@ object CommonUtils {
 
     fun savePref(key: String?, value: Boolean) {
         val pref: SharedPreferences =
-            App.instance.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
+            App.get().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
         pref.edit().putBoolean(key, value).apply()
     }
 
     fun savePref(key: String?, value: Int) {
         val pref: SharedPreferences =
-            App.instance.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
+            App.get().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
         pref.edit().putInt(key, value).apply()
     }
 
     fun savePref(key: String?, value: String) {
         val pref: SharedPreferences =
-            App.instance.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
+            App.get().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
         pref.edit().putString(key, value).apply()
     }
 
     fun getPrefBoolean(key: String?): Boolean {
         val pref: SharedPreferences =
-            App.instance.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
+            App.get().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
         return pref.getBoolean(key, false)
     }
 
     fun getPrefInt(key: String?): Int {
         val pref: SharedPreferences =
-            App.instance.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
+            App.get().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
         return pref.getInt(key, 0)
     }
 
     fun getPrefString(key: String?): String? {
         val pref: SharedPreferences =
-            App.instance.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
+            App.get().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
         return pref.getString(key, null)
     }
 
     fun clearPref(key: String?) {
         val pref: SharedPreferences =
-            App.instance.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
+            App.get().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
         pref.edit().remove(key).apply()
     }
 
