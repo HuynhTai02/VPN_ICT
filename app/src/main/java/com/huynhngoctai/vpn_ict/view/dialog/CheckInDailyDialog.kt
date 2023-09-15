@@ -1,6 +1,7 @@
 package com.huynhngoctai.vpn_ict.view.dialog
 
 import android.content.Context
+import android.util.Log
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.TextView
@@ -26,6 +27,7 @@ class CheckInDailyDialog(context: Context) : BaseDialog<DialogCheckinDailyBindin
 
     private var callBack: OnDialogListenerCheckIn? = null
     private var isCheckingIn = false
+    var isResetDailyCoinCheckIn = false
 
     fun setOnDialogListener(callBack: OnDialogListenerCheckIn) {
         this.callBack = callBack
@@ -122,15 +124,23 @@ class CheckInDailyDialog(context: Context) : BaseDialog<DialogCheckinDailyBindin
 
     private suspend fun resetCheckInState() {
         CommonUtils.clearPref(CHECK_IN_DAY_INDEX)
-        CommonUtils.clearPref(DAILY_COIN)
 
         withContext(Dispatchers.Main) {
             dayTextViews.forEach { it.setBackgroundResource(R.drawable.check_none_dailycheck) }
             binding.tvCountDay.text = "0"
+
         }
     }
 
     private suspend fun updateCheckInState(currentDayIndex: Int) {
+        if (isResetDailyCoinCheckIn) {
+            Log.d("BeforeClearCheckInDialogDailyCoin: ", CommonUtils.getPrefString(DAILY_COIN).toString())
+            CommonUtils.clearPref(DAILY_COIN)
+            Log.d("AfterClearVerifyAdsDialogDailyCoin: ", CommonUtils.getPrefString(DAILY_COIN).toString())
+
+            isResetDailyCoinCheckIn = false
+        }
+
         val updatedDayIndex = currentDayIndex + 1
         CommonUtils.savePref(CHECK_IN_DAY_INDEX, updatedDayIndex)
 
@@ -138,6 +148,9 @@ class CheckInDailyDialog(context: Context) : BaseDialog<DialogCheckinDailyBindin
         val coinTotal = CommonUtils.getPrefInt(TOTAL_COIN) + coinDaily
         CommonUtils.savePref(DAILY_COIN, coinDaily)
         CommonUtils.savePref(TOTAL_COIN, coinTotal)
+
+        Log.d("CheckInDialogTotalCoin: ", coinTotal.toString())
+        Log.d("CheckInDialogDailyCoin: ", coinDaily.toString())
 
         withContext(Dispatchers.Main) {
             val dayTextView = dayTextViews[currentDayIndex]

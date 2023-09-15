@@ -36,6 +36,8 @@ class CoinFragment : BaseFragment<FragmentCoinBinding>() {
         const val MAX_INVITE_COUNT: Int = 1
     }
 
+    private var dialogCheckIn: CheckInDailyDialog? = null
+    private var verifyAdsDialog: VerifyAdsDialog? = null
     private val tapInterval: Int = 1000
     private var lastTapTime: Long = 0
 
@@ -47,6 +49,7 @@ class CoinFragment : BaseFragment<FragmentCoinBinding>() {
     }
 
     override fun initViews() {
+        showDiaNoInternet()
         updateUI()
         addEvents()
         showBannerAds()
@@ -95,19 +98,8 @@ class CoinFragment : BaseFragment<FragmentCoinBinding>() {
                 val countingInvite =
                     CommonUtils.getPrefInt(COUNTING_INVITE) + 1
                 if (countingInvite <= MAX_INVITE_COUNT) {
-                    CommonUtils.savePref(COUNTING_INVITE, countingInvite)
 
-                    CommonUtils.savePref(
-                        DAILY_COIN_INVITE,
-                        CommonUtils.getPrefInt(DAILY_COIN_INVITE) + 80
-                    )
-
-                    CommonUtils.savePref(
-                        TOTAL_COIN_INVITE,
-                        CommonUtils.getPrefInt(TOTAL_COIN_INVITE) + 80
-                    )
-
-                    actionSendApp()
+                    actionSendApp(countingInvite)
 
                     lifecycleScope.launch(Dispatchers.Main) {
                         notify("Congratulations you have received 80 coins")
@@ -124,7 +116,26 @@ class CoinFragment : BaseFragment<FragmentCoinBinding>() {
         }
     }
 
-    private fun actionSendApp() {
+    private fun resetDailyCoinsInvite(currentDate: String) {
+        CommonUtils.clearPref(COUNTING_INVITE)
+        CommonUtils.savePref(LAST_INVITE_DATE, currentDate)
+    }
+
+    private fun savedValueHandleInvite(countingInvite: Int) {
+        CommonUtils.savePref(COUNTING_INVITE, countingInvite)
+
+        CommonUtils.savePref(
+            DAILY_COIN_INVITE,
+            CommonUtils.getPrefInt(DAILY_COIN_INVITE) + 80
+        )
+
+        CommonUtils.savePref(
+            TOTAL_COIN_INVITE,
+            CommonUtils.getPrefInt(TOTAL_COIN_INVITE) + 80
+        )
+    }
+
+    private fun actionSendApp(countingInvite: Int) {
         val appUrl = "https://github.com/HuynhTai02"
         val shareIntent = Intent(Intent.ACTION_SEND)
 
@@ -135,6 +146,13 @@ class CoinFragment : BaseFragment<FragmentCoinBinding>() {
         )
         shareIntent.type = "text/plain"
         startActivity(Intent.createChooser(shareIntent, null))
+
+        savedValueHandleInvite(countingInvite)
+    }
+
+    private fun resetDailyCoinsTap(currentDate: String) {
+        CommonUtils.clearPref(COUNTING_TAP)
+        CommonUtils.savePref(LAST_TAP_DATE, currentDate)
     }
 
     private fun handleTapCoin() {
@@ -154,17 +172,8 @@ class CoinFragment : BaseFragment<FragmentCoinBinding>() {
                 //Check time between 2 tap
                 val currentTime = System.currentTimeMillis()
                 if (currentTime - lastTapTime >= tapInterval) {
-                    CommonUtils.savePref(COUNTING_TAP, countingTap)
 
-                    CommonUtils.savePref(
-                        DAILY_COIN_TAP,
-                        CommonUtils.getPrefInt(DAILY_COIN_TAP) + 150
-                    )
-
-                    CommonUtils.savePref(
-                        TOTAL_COIN_TAP,
-                        CommonUtils.getPrefInt(TOTAL_COIN_TAP) + 150
-                    )
+                    savedValueHandleTap(countingTap)
 
                     lifecycleScope.launch(Dispatchers.Main) {
                         updateUI()
@@ -193,25 +202,29 @@ class CoinFragment : BaseFragment<FragmentCoinBinding>() {
         }
     }
 
-    private fun resetDailyCoinsInvite(currentDate: String) {
-        CommonUtils.clearPref(COUNTING_INVITE)
-        CommonUtils.savePref(LAST_INVITE_DATE, currentDate)
-    }
+    private fun savedValueHandleTap(countingTap: Int) {
+        CommonUtils.savePref(COUNTING_TAP, countingTap)
 
-    private fun resetDailyCoinsTap(currentDate: String) {
-        CommonUtils.clearPref(COUNTING_TAP)
-        CommonUtils.savePref(LAST_TAP_DATE, currentDate)
+        CommonUtils.savePref(
+            DAILY_COIN_TAP,
+            CommonUtils.getPrefInt(DAILY_COIN_TAP) + 150
+        )
+
+        CommonUtils.savePref(
+            TOTAL_COIN_TAP,
+            CommonUtils.getPrefInt(TOTAL_COIN_TAP) + 150
+        )
     }
 
     private fun showDialogVerifyAds() {
-        val verifyAdsDialog = VerifyAdsDialog(requireContext())
-        verifyAdsDialog.setOnDialogListener(object : OnDialogListenerVerifyAds {
+        verifyAdsDialog = VerifyAdsDialog(requireContext())
+        verifyAdsDialog!!.setOnDialogListener(object : OnDialogListenerVerifyAds {
             override fun showVideoAdsFragment() {
                 loadVideoAds()
                 isClickableViewFalse()
             }
         })
-        verifyAdsDialog.show()
+        verifyAdsDialog!!.show()
     }
 
     override fun isClickableView() {
@@ -231,13 +244,13 @@ class CoinFragment : BaseFragment<FragmentCoinBinding>() {
     }
 
     private fun showDialogCheckIn() {
-        val dialogCheckIn = CheckInDailyDialog(requireContext())
-        dialogCheckIn.setOnDialogListener(object : OnDialogListenerCheckIn {
+        dialogCheckIn = CheckInDailyDialog(requireContext())
+        dialogCheckIn!!.setOnDialogListener(object : OnDialogListenerCheckIn {
             override fun updateCoinCheckIn() {
                 updateUI()
             }
         })
-        dialogCheckIn.show()
+        dialogCheckIn!!.show()
     }
 
     private fun fetchTotalDailyCoins(): Int {
@@ -255,21 +268,52 @@ class CoinFragment : BaseFragment<FragmentCoinBinding>() {
     }
 
     private fun updateUI() {
-        lifecycleScope.launch(Dispatchers.Main) {
-            var totalDailyCoins = fetchTotalDailyCoins()
-            val totalCurrentCoins = fetchTotalCurrentCoins()
+        lifecycleScope.launch(Dispatchers.IO) {
 
-            lifecycleScope.launch(Dispatchers.IO) {
-                val currentDate = CommonUtils.getRealDay()
-                val lastDate = CommonUtils.getPrefString(LAST_DATE)
-
-                if (lastDate != currentDate) {
-                    totalDailyCoins = 0
-                }
+            // Reset total daily coins if it's a new day
+            if (isTodayNewDay()) {
+                checkIsResetDialog()
+                CommonUtils.clearPref(DAILY_COIN_TAP)
+                CommonUtils.clearPref(DAILY_COIN_INVITE)
+                CommonUtils.savePref(LAST_DATE, CommonUtils.getRealDay())
             }
 
-            binding.tvCurrentCoins.text = totalCurrentCoins.toString()
-            binding.tvDailyCoins.text = totalDailyCoins.toString()
+            lifecycleScope.launch(Dispatchers.Main) {
+
+                val totalCurrentCoins = fetchTotalCurrentCoins()
+                binding.tvCurrentCoins.text = totalCurrentCoins.toString()
+
+                val totalDailyCoins = fetchTotalDailyCoins()
+                binding.tvDailyCoins.text = totalDailyCoins.toString()
+
+                Log.d(
+                    "UpdateUICoinFragment",
+                    "total: ${binding.tvCurrentCoins.text}, daily: ${binding.tvDailyCoins.text} "
+                )
+            }
+        }
+    }
+
+    private suspend fun isTodayNewDay(): Boolean {
+        val currentDate = CommonUtils.getRealDay()
+        val lastDate = CommonUtils.getPrefString(LAST_DATE)
+        return lastDate != currentDate
+    }
+
+    private fun checkIsResetDialog() {
+        if (dialogCheckIn?.isResetDailyCoinCheckIn == true) {
+            CommonUtils.clearPref(VerifyAdsDialog.DAILY_COIN_DIALOG_ADS)
+
+            dialogCheckIn!!.isResetDailyCoinCheckIn = false
+        } else {
+            CommonUtils.clearPref(VerifyAdsDialog.DAILY_COIN_DIALOG_ADS)
+        }
+
+        if (verifyAdsDialog?.isResetDailyCoinWatchAds == true) {
+            CommonUtils.clearPref(CheckInDailyDialog.DAILY_COIN)
+            verifyAdsDialog!!.isResetDailyCoinWatchAds = false
+        } else {
+            CommonUtils.clearPref(CheckInDailyDialog.DAILY_COIN)
         }
     }
 

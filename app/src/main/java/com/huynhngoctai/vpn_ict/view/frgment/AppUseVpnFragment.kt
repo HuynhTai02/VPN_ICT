@@ -26,6 +26,7 @@ class AppUseVpnFragment : BaseFragment<FragmentAppUseVpnBinding>() {
     }
 
     override fun initViews() {
+        showDiaNoInternet()
         addEvent()
         val appsList = fetchApps()
         val adapter = AppInfoAdapter(appsList)
@@ -62,7 +63,10 @@ class AppUseVpnFragment : BaseFragment<FragmentAppUseVpnBinding>() {
             val packageName = resolveInfo.activityInfo.packageName
             val permissions: Array<String>
             try {
-                permissions = packageManager.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS).requestedPermissions
+                permissions = packageManager.getPackageInfo(
+                    packageName,
+                    PackageManager.GET_PERMISSIONS
+                ).requestedPermissions
                 if (permissions.contains(Manifest.permission.INTERNET)) {
                     val appName = resolveInfo.loadLabel(packageManager).toString()
                     val appIcon = resolveInfo.loadIcon(packageManager)

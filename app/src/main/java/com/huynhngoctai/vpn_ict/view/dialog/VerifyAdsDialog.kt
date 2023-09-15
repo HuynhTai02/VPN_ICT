@@ -23,6 +23,7 @@ class VerifyAdsDialog(context: Context) : BaseDialog<DialogVerifyAdsBinding>(con
     }
 
     private var callBack: OnDialogListenerVerifyAds? = null
+    var isResetDailyCoinWatchAds = false
 
     fun setOnDialogListener(callBack: OnDialogListenerVerifyAds) {
         this.callBack = callBack
@@ -64,7 +65,13 @@ class VerifyAdsDialog(context: Context) : BaseDialog<DialogVerifyAdsBinding>(con
     }
 
     private fun resetDailyCounts(currentDate: String) {
-        CommonUtils.clearPref(DAILY_COIN_DIALOG_ADS)
+        if (isResetDailyCoinWatchAds) {
+            Log.d("BeforeClearVerifyAdsDialogDailyCoin: ", CommonUtils.getPrefString(DAILY_COIN_DIALOG_ADS).toString())
+            CommonUtils.clearPref(DAILY_COIN_DIALOG_ADS)
+            Log.d("AfterClearVerifyAdsDialogDailyCoin: ", CommonUtils.getPrefString(DAILY_COIN_DIALOG_ADS).toString())
+
+            isResetDailyCoinWatchAds = false
+        }
         CommonUtils.clearPref(COUNTING_WATCH_DIALOG_ADS)
         CommonUtils.savePref(LAST_WATCH_DATE_DIALOG_ADS, currentDate)
     }
@@ -83,7 +90,7 @@ class VerifyAdsDialog(context: Context) : BaseDialog<DialogVerifyAdsBinding>(con
         CommonUtils.savePref(TOTAL_COIN_DIALOG_ADS, totalCoinDialogAds)
         CommonUtils.savePref(DAILY_COIN_DIALOG_ADS, dailyCoinDialogAds)
 
-        Log.d("watchAdsTotalDialog", totalCoinDialogAds.toString())
-        Log.d("watchAdsDailyDialog", dailyCoinDialogAds.toString())
+        Log.d("VerifyAdsDialogTotalCoin: ", totalCoinDialogAds.toString())
+        Log.d("VerifyAdsDialogDailyCoin: ", dailyCoinDialogAds.toString())
     }
 }

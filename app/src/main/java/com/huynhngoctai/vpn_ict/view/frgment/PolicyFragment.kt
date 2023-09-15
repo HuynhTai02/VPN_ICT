@@ -21,6 +21,8 @@ class PolicyFragment : BaseFragment<FragmentPolicyBinding>() {
     }
 
     override fun initViews() {
+        showDiaNoInternet()
+
         // Configure WebView
         configWebView()
         addEvents()

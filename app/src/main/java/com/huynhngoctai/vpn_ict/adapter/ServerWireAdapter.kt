@@ -6,13 +6,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.huynhngoctai.vpn_ict.R
-import com.huynhngoctai.vpn_ict.model.Servers
+import com.huynhngoctai.vpn_ict.model.ServerWire
 
-class ServersAdapter(
-    private val servers: List<Servers>,
-    private val clickListener: CountriesAdapter.OnServerItemClickListener
+class ServerWireAdapter(
+    private val serverWires: List<ServerWire>,
+    private val clickListener: CountryWireAdapter.OnServerItemClickListener
 ) :
-    RecyclerView.Adapter<ServersAdapter.ServerViewHolder>() {
+    RecyclerView.Adapter<ServerWireAdapter.ServerViewHolder>() {
 
     class ServerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val cityNameTextView: TextView
@@ -29,12 +29,12 @@ class ServersAdapter(
     }
 
     override fun onBindViewHolder(holder: ServerViewHolder, position: Int) {
-        val currentServer = servers[position]
+        val currentServer = serverWires[position]
         holder.cityNameTextView.text = currentServer.nameCity
         holder.itemView.setOnClickListener {
             clickListener.onServerItemClicked(currentServer)
         }
     }
 
-    override fun getItemCount() = servers.size
+    override fun getItemCount() = serverWires.size
 }

@@ -7,6 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
+import android.net.VpnService
+import android.os.RemoteException
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -20,7 +22,8 @@ import com.google.android.material.navigation.NavigationView
 import com.huynhngoctai.vpn_ict.App
 import com.huynhngoctai.vpn_ict.R
 import com.huynhngoctai.vpn_ict.databinding.FragmentMainBinding
-import com.huynhngoctai.vpn_ict.model.Servers
+import com.huynhngoctai.vpn_ict.model.ServerOpenVpn
+import com.huynhngoctai.vpn_ict.model.ServerWire
 import com.huynhngoctai.vpn_ict.service.TimerService
 import com.huynhngoctai.vpn_ict.util.CommonUtils
 import com.huynhngoctai.vpn_ict.util.QuantityFormatter
@@ -33,8 +36,13 @@ import com.wireguard.android.backend.Tunnel
 import com.wireguard.config.Config
 import com.wireguard.config.Interface
 import com.wireguard.config.Peer
+import de.blinkt.openvpn.OpenVpnApi
+import de.blinkt.openvpn.core.OpenVPNThread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
 import java.util.Timer
 import java.util.TimerTask
 
@@ -49,9 +57,10 @@ class MainFragment : BaseFragment<FragmentMainBinding>(), OnDialogListenerVerify
     private var isStopwatchRunning = false
     private lateinit var statusReceiver: BroadcastReceiver
     private lateinit var timeReceiver: BroadcastReceiver
-    private var server: Servers? = null
+    private var serverWire: ServerWire? = null
+    private var serverOpenVpn: ServerOpenVpn? = null
 
-    private val permissionActivityResultLauncher =
+    private val permissionActivityResultLauncherTypeWire =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode != Activity.RESULT_OK) {
                 Toast.makeText(
@@ -64,6 +73,19 @@ class MainFragment : BaseFragment<FragmentMainBinding>(), OnDialogListenerVerify
             }
         }
 
+    private val permissionActivityResultLauncherTypeOpen =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode != Activity.RESULT_OK) {
+                Toast.makeText(
+                    requireActivity(),
+                    "You need to grant VPN Master permission",
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
+                startVpn()
+            }
+        }
+
     override fun initViewBinding(
         inflater: LayoutInflater, container: ViewGroup?
     ): FragmentMainBinding {
@@ -71,7 +93,8 @@ class MainFragment : BaseFragment<FragmentMainBinding>(), OnDialogListenerVerify
     }
 
     override fun initViews() {
-        server = getSharedServer()
+        serverWire = getSharedServer()
+        serverOpenVpn = getSharedServerOpenVpn()
         showDiaNoInternet()
         showBannerAds()
         addEvents()
@@ -82,29 +105,19 @@ class MainFragment : BaseFragment<FragmentMainBinding>(), OnDialogListenerVerify
         binding.adBanner.loadAd(adRequest)
     }
 
+
     private fun addEvents() {
         binding.ibtWatchCoin.setOnClickListener(this)
         binding.ibtDailyCoin.setOnClickListener(this)
         binding.ibtDrawerMenu.setOnClickListener(this)
         binding.tvTapToConnect.setOnClickListener(this)
-        binding.navigationView.setNavigationItemSelectedListener(this)
         binding.tvTapToDisconnect.setOnClickListener(this)
         binding.ibtArrowDown.setOnClickListener(this)
 
-//        binding.navigationView.setNavigationItemSelectedListener {
-//            when (it.itemId) {
-//                R.id.nav_policy -> goToWebViewPolicy()
-//                R.id.nav_app_vpn -> goToAppUseVpnFragment()
-//                R.id.nav_more_coin -> goToMoreCoinFragment()
-//                R.id.nav_rate -> showDialogRateUs()
-//                R.id.nav_tell_friends -> shareApp()
-//                R.id.nav_list_sever -> goToListSeverFragment()
-//                else -> helpUsImprove()
-//            }
-//
-//            closeDrawerMenu()
-//            false
-//        }
+        //C1
+        binding.navigationView.setNavigationItemSelectedListener(this)
+        //C2
+//        handleNavigationView()
     }
 
     override fun onClick(v: View) {
@@ -113,21 +126,72 @@ class MainFragment : BaseFragment<FragmentMainBinding>(), OnDialogListenerVerify
             binding.ibtWatchCoin -> showDialogWatchCoin()
             binding.ibtDailyCoin -> showDialogDailyCheckIn()
             binding.ibtDrawerMenu -> openDrawerMenu()
-            binding.ibtArrowDown -> goToListSeverFragment()
+            binding.ibtArrowDown -> {
+                animationView(v)
+                goToListSeverFragment()
+            }
 
             binding.tvTapToConnect -> {
-                if (server == null || server?.nameCity.isNullOrEmpty()) {
+                if (binding.tvNameFlag.text.isNullOrEmpty()) {
                     notify("Please select a country first!")
                 } else {
-                    startStopwatch()
-                    setTunnelState(Tunnel.State.UP)
+                    if (CommonUtils.getPrefString("type").equals("OpenVpn")) {
+
+                        setViewTunnelStateUp()
+                    } else {
+                        startStopwatch()
+                        setTunnelState(Tunnel.State.UP)
+                    }
                 }
             }
 
             binding.tvTapToDisconnect -> {
-                stopStopwatch()
-                setTunnelState(Tunnel.State.DOWN)
+                if (CommonUtils.getPrefString("type").equals("OpenVpn")) {
+                    OpenVPNThread.stop()
+                    setViewTunnelStateDown()
+                } else {
+                    stopStopwatch()
+                    setTunnelState(Tunnel.State.DOWN)
+                }
             }
+        }
+    }
+
+    private fun startVpn() {
+        val intent = VpnService.prepare(activity)
+        if (intent!=null){
+            permissionActivityResultLauncherTypeOpen.launch(intent)
+        }
+
+        Log.d(TAG, "startVpn: ....")
+        try {
+            // .ovpn file
+            val conf = requireActivity().assets.open(serverOpenVpn!!.configOpenVpn)
+            val isr = InputStreamReader(conf)
+            val br = BufferedReader(isr)
+            var config = ""
+            var line: String?
+            while (true) {
+                line = br.readLine()
+                if (line == null) break
+                config += """
+                $line
+
+                """.trimIndent()
+            }
+            br.readLine()
+            OpenVpnApi.startVpn(
+                context,
+                config,
+                serverOpenVpn?.nameCity,
+                serverOpenVpn?.userOpenVpn,
+                serverOpenVpn?.passwordOpenVpn
+            )
+
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } catch (e: RemoteException) {
+            e.printStackTrace()
         }
     }
 
@@ -136,7 +200,7 @@ class MainFragment : BaseFragment<FragmentMainBinding>(), OnDialogListenerVerify
             try {
                 val intent = GoBackend.VpnService.prepare(activity)
                 if (intent != null) {
-                    permissionActivityResultLauncher.launch(intent)
+                    permissionActivityResultLauncherTypeWire.launch(intent)
                     return@launch
                 }
             } catch (e: Throwable) {
@@ -147,51 +211,24 @@ class MainFragment : BaseFragment<FragmentMainBinding>(), OnDialogListenerVerify
         }
     }
 
-    //Read File
-//    private fun setTunnelStateWithPermissionsResult() {
-//        lifecycleScope.launch(Dispatchers.IO) {
-//            try {
-//                FileInputStream(File(requireActivity().filesDir, "a.conf")).use { stream ->
-//                    val config = Config.parse(stream)
-//                    val newState = withContext(Dispatchers.IO) {
-//                        myTunnel = object : Tunnel {
-//                            override fun getName() = "ICT"
-//                            override fun onStateChange(newState: Tunnel.State) {
-//                                Log.d("onStateChange", newState.toString())
-//                            }
-//                        }
-//
-//                        App.getBackend().setState(
-//                            myTunnel!!, Tunnel.State.UP, config
-//                        )
-//                    }
-//
-//                    Log.d("setTunnelState", newState.toString())
-//                }
-//            } catch (e: Throwable) {
-//                e.printStackTrace()
-//            }
-//        }
-//    }
-
     private fun setTunnelStateWithPermissionsResultBuilder(stateTunnel: Tunnel.State) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 lifecycleScope.launch(Dispatchers.Main) {
-                    binding.ivFlag.setImageResource(server!!.flagCountry)
-                    binding.tvNameFlag.text = server?.nameCity
+                    binding.ivFlag.setImageResource(serverWire!!.flagCountry)
+                    binding.tvNameFlag.text = serverWire?.nameCity
                 }
 
                 val myInterface = Interface.Builder()
-                    .parsePrivateKey(server?.privateKeyInterface.toString())
-                    .parseAddresses(server?.addressInterface.toString())
-                    .parseDnsServers(server?.dnsInterface.toString())
+                    .parsePrivateKey(serverWire?.privateKeyInterface.toString())
+                    .parseAddresses(serverWire?.addressInterface.toString())
+                    .parseDnsServers(serverWire?.dnsInterface.toString())
                     .build()
 
                 val myPear = Peer.Builder()
-                    .parsePublicKey(server?.publicKeyPeer.toString())
-                    .parseEndpoint(server?.endpointPeer.toString())
-                    .parseAllowedIPs(server?.allowedIPsPeer.toString())
+                    .parsePublicKey(serverWire?.publicKeyPeer.toString())
+                    .parseEndpoint(serverWire?.endpointPeer.toString())
+                    .parseAllowedIPs(serverWire?.allowedIPsPeer.toString())
                     .build()
 
                 myConfig = Config.Builder()
@@ -214,14 +251,13 @@ class MainFragment : BaseFragment<FragmentMainBinding>(), OnDialogListenerVerify
                     myTunnel!!, stateTunnel, myConfig
                 )
 
-                CommonUtils.savePref("stateVPN", stateTunnel == Tunnel.State.UP)
             } catch (e: Throwable) {
                 e.printStackTrace()
             }
         }
     }
 
-    private fun getSharedServer(): Servers {
+    private fun getSharedServer(): ServerWire {
         val flagCountry = CommonUtils.getPrefInt("flagCountry")
         val nameCountry = CommonUtils.getPrefString("nameCountry") ?: ""
         val privateKeyInterface = CommonUtils.getPrefString("privateKeyInterface") ?: ""
@@ -231,7 +267,7 @@ class MainFragment : BaseFragment<FragmentMainBinding>(), OnDialogListenerVerify
         val endpointPeer = CommonUtils.getPrefString("endpointPeer") ?: ""
         val allowedIPsPeer = CommonUtils.getPrefString("allowedIPsPeer") ?: ""
 
-        return Servers(
+        return ServerWire(
             nameCountry,
             flagCountry,
             privateKeyInterface,
@@ -243,6 +279,21 @@ class MainFragment : BaseFragment<FragmentMainBinding>(), OnDialogListenerVerify
         )
     }
 
+    private fun getSharedServerOpenVpn(): ServerOpenVpn {
+        val flagOpen = CommonUtils.getPrefInt("flagOpen")
+        val nameOpen = CommonUtils.getPrefString("nameCityOpen") ?: ""
+        val configOpen = CommonUtils.getPrefString("configOpen") ?: ""
+        val userOpen = CommonUtils.getPrefString("userOpen") ?: ""
+        val passOpen = CommonUtils.getPrefString("passOpen") ?: ""
+
+        return ServerOpenVpn(
+            nameOpen,
+            flagOpen,
+            configOpen,
+            userOpen,
+            passOpen
+        )
+    }
 
     private fun updateUIOnTunnelState(newState: Tunnel.State) {
         lifecycleScope.launch(Dispatchers.IO) {
@@ -320,7 +371,6 @@ class MainFragment : BaseFragment<FragmentMainBinding>(), OnDialogListenerVerify
         }, 1000, 1000)
     }
 
-
     private fun getStopwatchStatus() {
         val timerService = Intent(requireActivity(), TimerService::class.java)
         timerService.putExtra(TimerService.STOPWATCH_ACTION, TimerService.GET_STATUS)
@@ -351,56 +401,6 @@ class MainFragment : BaseFragment<FragmentMainBinding>(), OnDialogListenerVerify
         requireActivity().startService(timerService)
     }
 
-    override fun onStart() {
-        super.onStart()
-
-        moveToBackground()
-    }
-
-    @SuppressLint("UnspecifiedRegisterReceiverFlag")
-    override fun onResume() {
-        super.onResume()
-
-        getStopwatchStatus()
-
-        // Receiving stopwatch status from service
-        val statusFilter = IntentFilter()
-        statusFilter.addAction(TimerService.STOPWATCH_STATUS)
-        statusReceiver = object : BroadcastReceiver() {
-            @SuppressLint("SetTextI18n")
-            override fun onReceive(p0: Context?, p1: Intent?) {
-                val isRunning = p1?.getBooleanExtra(TimerService.IS_STOPWATCH_RUNNING, false)!!
-                isStopwatchRunning = isRunning
-                val timeElapsed = p1.getIntExtra(TimerService.TIME_ELAPSED, 0)
-
-                updateLayout(isStopwatchRunning)
-                updateStopwatchValue(timeElapsed)
-            }
-        }
-        requireActivity().registerReceiver(statusReceiver, statusFilter)
-
-        // Receiving time values from service
-        val timeFilter = IntentFilter()
-        timeFilter.addAction(TimerService.STOPWATCH_TICK)
-        timeReceiver = object : BroadcastReceiver() {
-            override fun onReceive(p0: Context?, p1: Intent?) {
-                val timeElapsed = p1?.getIntExtra(TimerService.TIME_ELAPSED, 0)!!
-                updateStopwatchValue(timeElapsed)
-            }
-        }
-        requireActivity().registerReceiver(timeReceiver, timeFilter)
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        requireActivity().unregisterReceiver(statusReceiver)
-        requireActivity().unregisterReceiver(timeReceiver)
-
-        // Moving the service to foreground when the app is in background / not visible
-        moveToForeground()
-    }
-
     @SuppressLint("SetTextI18n")
     private fun updateStopwatchValue(timeElapsed: Int) {
         val hours: Int = (timeElapsed / 60) / 60
@@ -418,19 +418,15 @@ class MainFragment : BaseFragment<FragmentMainBinding>(), OnDialogListenerVerify
         }
     }
 
-
-
-
-
-
-
     private fun showDialogDailyCheckIn() {
         val dailyCheckInDialog = CheckInDailyDialog(requireContext())
+        dailyCheckInDialog.isResetDailyCoinCheckIn = true
         dailyCheckInDialog.show()
     }
 
     private fun showDialogWatchCoin() {
         val verifyAdsDialog = VerifyAdsDialog(requireContext())
+        verifyAdsDialog.isResetDailyCoinWatchAds = true
         verifyAdsDialog.setOnDialogListener(this)
         verifyAdsDialog.show()
     }
@@ -516,5 +512,98 @@ class MainFragment : BaseFragment<FragmentMainBinding>(), OnDialogListenerVerify
     override fun onDestroyView() {
         super.onDestroyView()
         binding.adBanner.destroy()
+    }
+
+    //Read File Lib Wire Guard VPN
+//    private fun setTunnelStateWithPermissionsResult() {
+//        lifecycleScope.launch(Dispatchers.IO) {
+//            try {
+//                FileInputStream(File(requireActivity().filesDir, "a.conf")).use { stream ->
+//                    val config = Config.parse(stream)
+//                    val newState = withContext(Dispatchers.IO) {
+//                        myTunnel = object : Tunnel {
+//                            override fun getName() = "ICT"
+//                            override fun onStateChange(newState: Tunnel.State) {
+//                                Log.d("onStateChange", newState.toString())
+//                            }
+//                        }
+//
+//                        App.getBackend().setState(
+//                            myTunnel!!, Tunnel.State.UP, config
+//                        )
+//                    }
+//
+//                    Log.d("setTunnelState", newState.toString())
+//                }
+//            } catch (e: Throwable) {
+//                e.printStackTrace()
+//            }
+//        }
+//    }
+
+//        private fun handleNavigationView() {
+//                binding.navigationView.setNavigationItemSelectedListener {
+//            when (it.itemId) {
+//                R.id.nav_policy -> goToWebViewPolicy()
+//                R.id.nav_app_vpn -> goToAppUseVpnFragment()
+//                R.id.nav_more_coin -> goToMoreCoinFragment()
+//                R.id.nav_rate -> showDialogRateUs()
+//                R.id.nav_tell_friends -> shareApp()
+//                R.id.nav_list_sever -> goToListSeverFragment()
+//                else -> helpUsImprove()
+//            }
+//
+//            closeDrawerMenu()
+//            false
+//        }
+//    }
+
+    override fun onStart() {
+        super.onStart()
+
+        moveToBackground()
+    }
+
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
+    override fun onResume() {
+        super.onResume()
+
+        getStopwatchStatus()
+
+        // Receiving stopwatch status from service
+        val statusFilter = IntentFilter()
+        statusFilter.addAction(TimerService.STOPWATCH_STATUS)
+        statusReceiver = object : BroadcastReceiver() {
+            @SuppressLint("SetTextI18n")
+            override fun onReceive(p0: Context?, p1: Intent?) {
+                val isRunning = p1?.getBooleanExtra(TimerService.IS_STOPWATCH_RUNNING, false)!!
+                isStopwatchRunning = isRunning
+                val timeElapsed = p1.getIntExtra(TimerService.TIME_ELAPSED, 0)
+
+                updateLayout(isStopwatchRunning)
+                updateStopwatchValue(timeElapsed)
+            }
+        }
+        requireActivity().registerReceiver(statusReceiver, statusFilter)
+
+        // Receiving time values from service
+        val timeFilter = IntentFilter()
+        timeFilter.addAction(TimerService.STOPWATCH_TICK)
+        timeReceiver = object : BroadcastReceiver() {
+            override fun onReceive(p0: Context?, p1: Intent?) {
+                val timeElapsed = p1?.getIntExtra(TimerService.TIME_ELAPSED, 0)!!
+                updateStopwatchValue(timeElapsed)
+            }
+        }
+        requireActivity().registerReceiver(timeReceiver, timeFilter)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        requireActivity().unregisterReceiver(statusReceiver)
+        requireActivity().unregisterReceiver(timeReceiver)
+
+        // Moving the service to foreground when the app is in background / not visible
+        moveToForeground()
     }
 }

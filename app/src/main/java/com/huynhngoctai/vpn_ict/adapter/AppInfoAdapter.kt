@@ -10,7 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.huynhngoctai.vpn_ict.R
 import com.huynhngoctai.vpn_ict.model.AppInfo
 
-class AppInfoAdapter(private var apps: List<AppInfo>) : RecyclerView.Adapter<AppInfoAdapter.ViewHolder>() {
+class AppInfoAdapter(private var apps: List<AppInfo>) :
+    RecyclerView.Adapter<AppInfoAdapter.ViewHolder>() {
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val appIcon: ImageView = itemView.findViewById(R.id.app_icon)
@@ -33,7 +34,6 @@ class AppInfoAdapter(private var apps: List<AppInfo>) : RecyclerView.Adapter<App
 
         holder.appSelectCheckbox.setOnCheckedChangeListener { _, isChecked ->
             appInfo.isSelected = isChecked
-
         }
     }
 }

@@ -37,7 +37,6 @@ abstract class BaseFragment<V : ViewBinding> : Fragment(), View.OnClickListener 
         return binding.root
     }
 
-
     abstract fun initViewBinding(inflater: LayoutInflater, container: ViewGroup?): V
 
     abstract fun initViews()

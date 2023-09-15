@@ -38,7 +38,7 @@ abstract class BaseAct<V : ViewBinding> : AppCompatActivity(), View.OnClickListe
         //do nothing
     }
 
-    @SuppressLint("PrivateResource")
+    @SuppressLint("PrivateResource", "CommitTransaction")
     override fun showFragment(tag: String, isBacked: Boolean) {
         val clazz = Class.forName(tag)
         val cons = clazz.getConstructor()

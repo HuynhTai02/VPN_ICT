@@ -8,15 +8,15 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.huynhngoctai.vpn_ict.R
-import com.huynhngoctai.vpn_ict.model.Country
-import com.huynhngoctai.vpn_ict.model.Servers
+import com.huynhngoctai.vpn_ict.model.CountryWire
+import com.huynhngoctai.vpn_ict.model.ServerWire
 import de.hdodenhof.circleimageview.CircleImageView
 
-class CountriesAdapter(
-    private val countries: List<Country>,
+class CountryWireAdapter(
+    private val countries: List<CountryWire>,
     private val clickListener: OnServerItemClickListener? = null
 ) :
-    RecyclerView.Adapter<CountriesAdapter.CountryViewHolder>() {
+    RecyclerView.Adapter<CountryWireAdapter.CountryViewHolder>() {
 
     class CountryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val countryImageView: CircleImageView
@@ -44,7 +44,7 @@ class CountriesAdapter(
         holder.countryNameTextView.text = currentCountry.nameCountry
 
         holder.serversRecyclerView.layoutManager = LinearLayoutManager(holder.itemView.context)
-        holder.serversRecyclerView.adapter = ServersAdapter(currentCountry.servers, clickListener!!)
+        holder.serversRecyclerView.adapter = ServerWireAdapter(currentCountry.serverWires, clickListener!!)
 
         holder.arrowDown.setOnClickListener {
             if (holder.serversRecyclerView.visibility == View.GONE) {
@@ -57,17 +57,16 @@ class CountriesAdapter(
         }
 
         holder.itemView.setOnClickListener {
-            if (currentCountry.servers.isNotEmpty()) {
-                val firstServer = currentCountry.servers[0]
+            if (currentCountry.serverWires.isNotEmpty()) {
+                val firstServer = currentCountry.serverWires[0]
                 clickListener.onServerItemClicked(firstServer)
             }
         }
     }
 
-
     override fun getItemCount() = countries.size
 
     interface OnServerItemClickListener {
-        fun onServerItemClicked(server: Servers)
+        fun onServerItemClicked(serverWire: ServerWire)
     }
 }

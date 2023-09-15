@@ -1,6 +1,6 @@
 package com.huynhngoctai.vpn_ict.model
 
-data class Servers(
+data class ServerWire(
     val nameCity: String,
     val flagCountry:Int,
     val privateKeyInterface: String,

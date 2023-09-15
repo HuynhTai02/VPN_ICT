@@ -1,7 +1,7 @@
 package com.huynhngoctai.vpn_ict.model
 
-data class Country(
+data class CountryWire(
     val nameCountry: String,
     val flagCountry: Int,
-    val servers: List<Servers>
+    val serverWires: List<ServerWire>
 )

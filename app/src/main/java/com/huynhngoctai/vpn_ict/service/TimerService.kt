@@ -14,7 +14,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.huynhngoctai.vpn_ict.App
 import com.huynhngoctai.vpn_ict.R
-import com.huynhngoctai.vpn_ict.view.act.MainActivity
 import com.huynhngoctai.vpn_ict.view.frgment.MainFragment
 import com.wireguard.android.backend.Tunnel
 import kotlinx.coroutines.CoroutineScope
@@ -46,7 +45,7 @@ class TimerService : Service() {
         const val STOPWATCH_STATUS = "STOPWATCH_STATUS"
     }
 
-    private var timeElapsed: Int = 30
+    private var timeElapsed: Int = 15000
     private var isStopWatchRunning = false
 
     private var updateTimer = Timer()
@@ -112,6 +111,18 @@ class TimerService : Service() {
     private fun moveToBackground() {
         updateTimer.cancel()
         stopForeground(true)
+        if (timeElapsed <= 0) {
+            stopVPN()
+        }
+    }
+
+    private fun stopVPN() {
+        Log.d("stopVPN: ", "" + (App.get().getMyTunnel() != null))
+        CoroutineScope(Dispatchers.IO).launch {
+            App.getBackend()
+                .setState(App.get().getMyTunnel()!!, Tunnel.State.DOWN, App.get().getMyConfig())
+            Log.d("stopVPN: ", "" + (App.get().getMyTunnel() != null))
+        }
     }
 
     /*
@@ -123,7 +134,7 @@ class TimerService : Service() {
     * */
     private fun startStopwatch() {
         isStopWatchRunning = true
-        timeElapsed = 30 // Reset the timeElapsed to the initial value
+        timeElapsed = 12 // Reset the timeElapsed to the initial value
 
         sendStatus()
 
@@ -137,6 +148,7 @@ class TimerService : Service() {
 
                 if (timeElapsed <= 0) {
                     stopStopwatch()
+                    moveToBackground()
                 }
 
                 stopwatchIntent.putExtra(TIME_ELAPSED, timeElapsed)
@@ -153,16 +165,6 @@ class TimerService : Service() {
         timeElapsed = 0
         sendStatus()
         stopwatchTimer.cancel()
-    }
-
-    private fun stopVPN() {
-        Log.d("stopVPN: ", "" + (App.get().getMyTunnel() != null))
-        CoroutineScope(Dispatchers.IO).launch {
-            App.getBackend()
-                .setState(App.get().getMyTunnel()!!, Tunnel.State.DOWN, App.get().getMyConfig())
-
-            Log.d("stopVPN: ", "" + (App.get().getMyTunnel() != null))
-        }
     }
 
     /*
@@ -223,7 +225,7 @@ class TimerService : Service() {
             this, 0, cancelIntent, PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, MainFragment::class.java)
         val pIntent = PendingIntent.getActivity(
             this, 0, intent,
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
@@ -249,9 +251,6 @@ class TimerService : Service() {
             .build()
     }
 
-    /*
-    * This function uses the notificationManager to update the existing notification with the new notification
-    * */
     private fun updateNotification() {
         notificationManager.notify(
             1,

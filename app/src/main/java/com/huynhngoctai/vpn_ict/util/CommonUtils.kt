@@ -45,6 +45,7 @@ object CommonUtils {
         return pref.getInt(key, 0)
     }
 
+
     fun getPrefString(key: String?): String? {
         val pref: SharedPreferences =
             App.get().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
